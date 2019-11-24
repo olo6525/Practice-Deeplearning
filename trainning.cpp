@@ -13,7 +13,7 @@ constexpr auto array_size = 512*512;
 class Neuron
 {
 public:
-	double w_[array_size]; //weight of ine input
+	double w_[array_size]; //weight of ine input  <<이부분 클래스 안에서 배열 쓰고 초기화가 안되서 일단 오류..
 	double b_[array_size]; //bias
 	int i = 0;
 	double input_, output_; //saved for back prop
@@ -81,8 +81,8 @@ int main()
 	printf("trainning start\n");
 	for (int i = 0; i < 1; i++)
 	{
-		String trainning_name = "C:\\Users\\oh___\\OneDrive\\���� ȭ��\\�󱼻���\\������\\d" + to_string(i) + ".jpg";
-		String model_name = "C:\\Users\\oh___\\OneDrive\\���� ȭ��\\�󱼻���\\������\\d" + to_string(i+1) + ".jpg";
+		String trainning_name = "C:\\Users\\oh___\\OneDrive\\바탕 화면\\얼굴사진\\데이터\\d" + to_string(i) + ".jpg";
+		String model_name = "C:\\Users\\oh___\\OneDrive\\바탕 화면\\얼굴사진\\데이터\\d" + to_string(i+1) + ".jpg";
 		
 		trainning_image = imread(trainning_name, 1);
 		model_image = imread(model_name, 1);
@@ -112,7 +112,7 @@ void trainning(Mat& image_model,Mat& trainning_data) {
 	int height = trainning_data.rows;
 	int width = trainning_data.cols;
 	double pix_x, out_y;
-	//�Ű�� ���� ����
+	//신경망 구성 변수
 
 	Mat trainning_gray, trainning_array, model_gray  , kernel;
 
@@ -133,7 +133,7 @@ void trainning(Mat& image_model,Mat& trainning_data) {
 		for(int j=0 ;j<width;j++)
 		{
 			
-				
+				     //<< 이부분을 채워넣어야 하는데 신경망 공식을 배열대로 못넣으니 모르겠고.. 더 공부해서 
 
 			
 		}
