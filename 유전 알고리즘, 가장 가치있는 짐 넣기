@@ -157,7 +157,7 @@ void mating(int pool[POOLSIZE][N]
 
 	/* 룰렛 작성*/
 	for (i = 0; i < POOLSIZE; ++i) {
-		roulette[i] = evalfit(pool[i]);
+		roulette[i] = evalfit(pool[i]);//2중 포인터 개념으로 해석해야 왜 pool[i]변수가 들어가는지 이해 가능.
 		/* 적응도 합계계산*/
 		totalfitness += roulette[i];
 	}
