@@ -1,0 +1,179 @@
+/********************************************/
+/*         qlearning.c                      */
+/*   강화학습(Q 학습) 예제 프로그램         */
+/*   미로 탐색을 학습합니다.                */
+/*   사용 방법                              */
+/********************************************/
+
+/*Visual Studio와의 호환성 확보 */
+#define _CRT_SECURE_NO_WARNINGS
+
+/* 헤더 파일 포함*/
+#include <stdio.h>
+#include <stdlib.h>
+
+/* 기호 상수의 정의             */
+#define GENMAX  1000	/*학습 반복 횟수*/
+#define NODENO  15		/*Ｑ 값의 노드 -> 노드 0부터 피라미드 모양의 총 15개의 노드이다 .*/ 
+/*         ㅁ                  node0
+     ㅁ          ㅁ         1             2
+  ㅁ    ㅁ    ㅁ    ㅁ    3    4       5      6
+ㅁ ㅁ  ㅁ ㅁ ㅁ ㅁ ㅁ ㅁ 7 8   9 10   11 12  13 14 이런식의 피라미드의 노드라 생각하면 된다. 맨위 노드 0부터 왼쪽 순으로 14의 노드 총 15개가 있다. */
+#define ALPHA 0.1		/*학습 계수*/
+#define GAMMA 0.9		/* 할인율*/
+#define EPSILON 0.3		/*행동 선택의 무작위성 결정 */
+#define SEED 32767		/*난수 시드*/
+
+/* 함수 프로그램 선언  */
+int rand100();		/*0～100을 반환하는 난수 함수*/
+int rand01();		/*0 또는 1을 반환하는 난수 함수*/
+double rand1();	/*0～1 사이의 실수를 반환하는 난수 함수*/
+void printqvalue(int qvalue[NODENO]);	/*Q 값 출력*/
+int selecta(int s, int qvalue[NODENO]);	/*행동 선택*/
+int updateq(int s, int qvalue[NODENO]);	/*Q 값 갱신*/
+
+/*****************/
+/*  main() 함수  */
+/*****************/
+int main()
+{
+	int i;
+	int s;/*상태*/
+	int t;/*시각*/
+	int qvalue[NODENO];/*Q 값*/
+
+	srand(SEED);/*난수 초기화*/
+
+	/*Ｑ 값 초기화*/
+	for (i = 0; i < NODENO; ++i)
+		qvalue[i] = rand100();
+	printqvalue(qvalue);
+
+	/*실제 학습*/
+	for (i = 0; i < GENMAX; ++i) {
+		s = 0;/*행동 초기 상태*/
+		for (t = 0; t < 3; ++t) {/*가장 아랫단까지 반복*/
+		 /*행동 선택*/
+			s = selecta(s, qvalue);
+
+			/*Q 값 갱신*/
+			qvalue[s] = updateq(s, qvalue);
+		}
+		/*Q 값 출력*/
+		printqvalue(qvalue);
+	}
+	return 0;
+}
+
+/****************************/
+/*       updateq() 함수     */
+/*       Q 값 갱신          */
+/*보상에서는 최종 노드 목표를 정한다. 이때 최종노드의 선택권은 맨 밑에 노드층인 7~14 노드의 선택권이 있다.
+즉, 로봇을 예로 들면 관절들이 제각각 움직이면서 최종으로 나오는 모습이라 생각하면 된다.
+본 예제같으 경우 10노드와 11 노드를 선택했으며, 10노드에 가장큰 보상을 주었고 11노드는 약간의 보상을 주는 코드를 사용하였다.*/
+/****************************/
+int updateq(int s, int qvalue[NODENO])
+{
+	int qv;/*갱신되는 Q 값*/
+	int qmax;/*Ｑ 값의 최댓값*/
+
+	/*가장 아랫단일 때*/
+	if (s > 6) {
+		if (s == 10)/*보상 부여*/
+			qv = qvalue[s] + ALPHA * (1000 - qvalue[s]);
+		/*보상을 주는 노드 증가   */
+		/*다른 노드를 추가할 때는 */
+		/*다음 2줄의 주석을 제거  */
+	    else if(s==11)/*보상 부여*/
+	     qv=qvalue[s]+ALPHA*(500-qvalue[s]) ;
+		else/*보상 없음*/
+			qv = qvalue[s];
+	}
+	/*가장 아랫단 이외*/
+	else {
+		if ((qvalue[2 * s + 1]) > (qvalue[2 * s + 2]))
+			qmax = qvalue[2 * s + 1];
+		else qmax = qvalue[2 * s + 2];
+		qv = qvalue[s] + ALPHA * (GAMMA * qmax - qvalue[s]);
+	}
+
+	return qv;
+}
+
+/****************************/
+/*        selecta() 함수    */
+/*        행동 선택         */
+/*그리디 법은 보상이 있을때 보상쪽으로만 행동하여 다른 기회를 놓치는 상황을 방지하기 위한 조치이다.
+처음 보상을 얻었다면 그 값에 0~1 랜덤하게 값을 곱하고 다른 노드의 무작의 점수들과 비교를 한뒤 새로운 방향을 시도하게 한다.*/
+/****************************/
+int selecta(int olds, int qvalue[NODENO])
+{
+	int s;
+
+	/*ε-greedy 법을 이용한 행동 선택*/
+	if (rand1() < EPSILON) {
+		/*무작위로 행동*/
+		if (rand01() == 0) s = 2 * olds + 1;
+		else s = 2 * olds + 2;
+	}
+	else {
+		/*Ｑ 값 최댓값을 선택*/
+		if ((qvalue[2 * olds + 1]) > (qvalue[2 * olds + 2]))
+			s = 2 * olds + 1;
+		else s = 2 * olds + 2;
+	}
+
+	return s;
+}
+
+/****************************/
+/*    printqvalue()함수     */
+/*    Q 값 출력             */
+/****************************/
+void printqvalue(int qvalue[NODENO])
+{
+	int i;
+
+	for (i = 1; i < NODENO; ++i)
+		printf("%d\t", qvalue[i]);
+
+	printf("\n");
+}
+
+/***********************************/
+/*     rand1() 함수                */
+/*0～1 사이의 실수 반환 난수 함수  */
+/***********************************/
+double rand1()
+{
+	/*난수 계산*/
+	return (double)rand() / RAND_MAX;
+}
+
+/***********************************/
+/*     rand01() 함수               */
+/*   0 또는 1을 반환하는 난수 함수 */
+/***********************************/
+int rand01()
+{
+	int rnd;
+
+	/*난수 최댓값을 제외*/
+	while ((rnd = rand()) == RAND_MAX);
+	/*난수 계산*/
+	return (int)((double)rnd / RAND_MAX * 2);
+}
+
+/**********************************/
+/*     rand100() 함수             */
+/*   0～100을 반환하는 난수 함수  */
+/**********************************/
+int rand100()
+{
+	int rnd;
+
+	/*난수 최댓값 제외*/
+	while ((rnd = rand()) == RAND_MAX);
+	/*난수 계산*/
+	return (int)((double)rnd / RAND_MAX * 101);
+}
