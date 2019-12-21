@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 void initparcel()
 {
 
-	FILE* f = fopen("본인 PC에 data파일 있는 경로를 입력", "r");
+	FILE* f = fopen("C:\\Users\\oh___\\OneDrive\\바탕 화면\\딥러닝 강의 자료\\ch3\\data.txt", "r");
 	int i = 0;
 	while ((i < N) &&
 		(fscanf(f,"%d %d", &parcel[i][0], &parcel[i][1])
@@ -106,7 +106,7 @@ void selectng(int ngpool[POOLSIZE * 2][N]
 		/* 룰렛 작성 */
 		totalfitness = 0;
 		for (c = 0; c < POOLSIZE * 2; ++c) {
-			roulette[c] = evalfit(ngpool[c]);
+			roulette[c] = evalfit(ngpool[c]);//2중 포인터 개념으로 해석해야 왜 pool[i]변수가 들어가는지 이해 가능.
 			/* 적응도 합계 계산*/
 			totalfitness += roulette[c];
 		}
@@ -170,7 +170,7 @@ void mating(int pool[POOLSIZE][N]
 		} while (mama == papa);/*重複の削除*/
 
 		/*특정 유전자 2개를 교차*/
-		crossing(pool[mama], pool[papa]
+		crossing(pool[mama], pool[papa]//2중 포인터 개념으로 해석해야 왜 pool[i]변수가 들어가는지 이해 가능.
 			, ngpool[i * 2], ngpool[i * 2 + 1]);
 	}
 }
@@ -211,8 +211,8 @@ int evalfit(int g[])
 
 	/*각 유전자 위치를 조사하여 중량과 평갓값을 계산*/
 	for (pos = 0; pos < N; ++pos) {
-		weight += parcel[pos][0] * g[pos];
-		value += parcel[pos][1] * g[pos];
+		weight += parcel[pos][0] * g[pos];//2중 포인터 개념으로 해석해야 왜 pool[i]변수가 들어가는지 이해 가능.
+		value += parcel[pos][1] * g[pos];//2중 포인터 개념으로 해석해야 왜 pool[i]변수가 들어가는지 이해 가능.
 	}
 	/*죽은 유전자 처리*/
 	if (weight >= WEIGHTLIMIT) value = 0;
